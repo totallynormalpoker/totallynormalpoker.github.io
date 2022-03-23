@@ -16,7 +16,15 @@
     <title>TotallyNormalPoker</title>
     <script language="JavaScript">
 
-        //Totally Normal Poker v1.0 - Callum West © 2022
+        //Totally Normal Poker v1.1 - Callum West © 2022
+
+        //##-V1.1 Changelog-###
+        //~Added error catch alert message for hand calculation
+        //~Fixed issue with full house yaku detection
+        //~Added hand comparison for Yaku and Double Yaku (Forgot that the first time round, oops!)
+        //~Added Yaku House hand type
+        //~Changed rank value and straight calculation validation for 'Unranked' cards
+        //~Added more buttons for increasing and decreasing bets
         
         //I went into this project with a very dumb idea and absolutely no clue how to write code for evaluating poker hands. I've come out with a very dumb game and code that can kinda evaluate poker hands most of the time. It's actually been very fun to write and test, even if it was a pain to debug at times due to my lack of annotation. Hope you enjoy!
 
@@ -28,21 +36,21 @@
         //Test hands for testing purposes
         
         const testRiver = [
-        {Name:"Peony (Butterfly)",PairValue:"Peony",PairAlt:"20",PairRank:20,RankValue:5,RankAlt:null,Suit:"June",Colour:"Hanafuda",Type:"hanafuda",Img:"peony1" },
-        {Name:"Iris (Red Ribbon)",PairValue:"Iris",PairAlt:"10",PairRank:19,RankValue:10,RankAlt:null,Suit:"May",Colour:"Hanafuda",Type:"hanafuda",Img:"iris2" },
-        {Name:"Bush Clover (Red Ribbon)",PairValue:"Bush Clover",PairAlt:"10",PairRank:21,RankValue:10,RankAlt:null,Suit:"July",Colour:"Hanafuda",Type:"hanafuda",Img:"bush2" },
-        {Name:"Peony (Blue Ribbon)",PairValue:"Peony",PairAlt:"10",PairRank:20,RankValue:10,RankAlt:null,Suit:"June",Colour:"Hanafuda",Type:"hanafuda",Img:"peony2" },
-        {Name:"Plum Blossom",PairValue:"Plum Blossom",PairAlt:"0",PairRank:16,RankValue:0,RankAlt:null,Suit:"February",Colour:"Hanafuda",Type:"hanafuda",Img:"plum3"}
+        {Name:"Wild",PairValue:"Wild",PairAlt:"A",PairRank:0,RankValue:"Wild",RankAlt:null,Suit:"Wild",Colour:"Wild",Type:"uno"},
+        {Name:"Black Joker",PairValue:"Joker",PairAlt:"A",PairRank:0,RankValue:"Wild",RankAlt:null,Suit:"Wild",Colour:"Black",Type:"extra"},
+        {Name:"Wild",PairValue:"Wild",PairAlt:"A",PairRank:0,RankValue:"Wild",RankAlt:null,Suit:"Wild",Colour:"Wild",Type:"uno"},
+        {Name:"Red Joker",PairValue:"Joker",PairAlt:"A",PairRank:0,RankValue:"Wild",RankAlt:null,Suit:"Wild",Colour:"Red",Type:"extra"},
+        {Name:"Red Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:-100,RankAlt:null,Suit:"Red",Colour:"Red",Type:"uno"}
         ];
 
         const testPlayer = [
-        {Name:"10. Wheel of Fortune",PairValue:"10",PairAlt:null,PairRank:10,RankValue:10,RankAlt:null,Suit:"Tarot",Colour:"Tarot",Type:"tarot" },
-        {Name:"Paulownia",PairValue:"Paulownia",PairAlt:"0",PairRank:26,RankValue:0,RankAlt:null,Suit:"December",Colour:"Hanafuda",Type:"hanafuda",Img:"paulo3" }
+        {Name:"Red Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:-100,RankAlt:null,Suit:"Red",Colour:"Red",Type:"uno"},
+        {Name:"Red Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:-100,RankAlt:null,Suit:"Red",Colour:"Red",Type:"uno"}
         ];
 
         const testOpp = [
-        {Name: "Pine (Crane)", PairValue: "Pine", PairAlt: null, PairRank: 15, RankValue: 20, RankAlt: null, Suit: "January", Colour: "Hanafuda", Type: "hanafuda", Img: "pine1"},
-        {Name:"Yellow Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:0,RankAlt:null,Suit:"Yellow",Colour:"Yellow",Type:"uno"}
+        {Name:"Red Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:-100,RankAlt:null,Suit:"Red",Colour:"Red",Type:"uno"},
+        {Name:"Red Skip",PairValue:"Skip",PairAlt:null,PairRank:0,RankValue:-100,RankAlt:null,Suit:"Red",Colour:"Red",Type:"uno"}
         ];
 
         const testDeck = [
@@ -451,7 +459,7 @@
         
         //Names of hand types to be reported in compareHands()
         
-        const handValues = ["", "High card", "One Pair", "Two Pair", "Three of a Kind", "Yaku", "Straight", "Flush", "Full House", "Four of a Kind", "Straight Flush", "5 of a Kind", "Double Yaku"];
+        const handValues = ["", "High card", "One Pair", "Two Pair", "Three of a Kind", "Yaku", "Straight", "Flush", "Full House", "Yaku House", "Four of a Kind", "Straight Flush", "5 of a Kind", "Double Yaku"];
         
         //Dialogue
         
@@ -601,7 +609,6 @@
             "This hand is pure garbage",
             "I'm not even gonna look at my cards...",
             "Wake me up when this guy places a bet... ZZzzzzZZzzz...",
-            "What a boring game",
             "What a rubbish game",
             "This casino smells funny",
             "I've forgotten how Poker works",
@@ -613,7 +620,8 @@
             "At this rate I'm gonna be betting my kids' college money...",
             "Do they sell sandwiches here?",
             "This is like a Bond movie",
-            "For another dumb web toy, try dayattherac.es"
+            "For another dumb web toy, try dayattherac.es",
+            "Send your feedback to @Mr_Misfire on Twitter or email at totallynormalpoker@gmail.com"
         ];
         
         let dialogueStage1 = [
@@ -643,7 +651,6 @@
             "This is trash",
             "This is pure garbage",
             "Wake me up when this guy places a bet... ZZzzzzZZzzz...",
-            "What a boring game",
             "What a rubbish game",
             "This casino smells funny",
             "I've forgotten how Poker works",
@@ -662,7 +669,8 @@
             "This hand was a mistake",
             "I've won this hand for sure",
             "This is like a Bond movie",
-            "For another dumb web toy, try dayattherac.es"
+            "For another dumb web toy, try dayattherac.es",
+            "Send your feedback to @Mr_Misfire on Twitter or email at totallynormalpoker@gmail.com"
         ];
         
         const dialogueFold = [
@@ -942,6 +950,7 @@
         let threeCounter;
         let onePairCounter;
         let fullCounter;
+        let yakuFullCounter;
         let twoPairCounter;
         let straightFlushCounter;
         let flushCounter;
@@ -1011,7 +1020,7 @@
             deck.push(card);
             card = {Name: "Red Joker", PairValue: "Joker", PairAlt: "A", PairRank: 0, RankValue: "Wild", RankAlt: null, Suit: "Wild", Colour: "Red", Type: "extra"};
             deck.push(card);
-            card = {Name: "Rules of Poker", PairValue: null, PairAlt: null,  PairRank: -100, RankValue: 0, RankAlt: null, Suit: null, Colour: "Black", Type: "extra"};
+            card = {Name: "Rules of Poker", PairValue: null, PairAlt: null,  PairRank: -100, RankValue: -100, RankAlt: null, Suit: null, Colour: "Black", Type: "extra"};
             deck.push(card);
             
             return deck;
@@ -1048,9 +1057,9 @@
                 for(let x = 0; x < 2; x++) {
                     card = {Name: unoColours[i] + " Draw 2", PairValue: "Draw2", PairAlt: null, PairRank: 2.5, RankValue: 2, RankAlt: null, Suit: unoColours[i], Colour: unoColours[i], Type: "uno"};
                     deck.push(card);
-                    card = {Name: unoColours[i] + " Reverse", PairValue: "Reverse", PairAlt: null, PairRank: 0, RankValue: 0, RankAlt: null, Suit: unoColours[i], Colour: unoColours[i], Type: "uno"};
+                    card = {Name: unoColours[i] + " Reverse", PairValue: "Reverse", PairAlt: null, PairRank: 0, RankValue: -100, RankAlt: null, Suit: unoColours[i], Colour: unoColours[i], Type: "uno"};
                     deck.push(card);
-                    card = {Name: unoColours[i] + " Skip", PairValue: "Skip", PairAlt: null, PairRank: 0, RankValue: 0, RankAlt: null, Suit: unoColours[i], Colour: unoColours[i], Type: "uno"};
+                    card = {Name: unoColours[i] + " Skip", PairValue: "Skip", PairAlt: null, PairRank: 0, RankValue: -100, RankAlt: null, Suit: unoColours[i], Colour: unoColours[i], Type: "uno"};
                     deck.push(card);
                 }
             }
@@ -2986,7 +2995,7 @@
 
             document.getElementById("option_space").style.visibility = "hidden";
 
-            document.getElementById("makebet_button").innerText = "Check";
+            document.getElementById("makebet_button").innerText = "Call";
         }
 
         function drawPairs() {
@@ -3051,11 +3060,21 @@
                 card = hiddenCard;
                 riverDeck.push(card);
                 cardCounter++;
-                document.getElementById("makebet_button").innerText = "Check";
+                document.getElementById("makebet_button").innerText = "Call";
                 document.getElementById("betup_button").style.visibility = "visible";
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
                 randDialoge = Math.floor(Math.random() * (dialogueNew.length));
                 dialogueSpace.innerText = dialogueNew[randDialoge];
 
@@ -3125,11 +3144,21 @@
                 card = mainDeck.shift();
                 riverDeck.push(card);
                 cardCounter++;
-                document.getElementById("makebet_button").innerText = "Check";
+                document.getElementById("makebet_button").innerText = "Call";
                 document.getElementById("betup_button").style.visibility = "visible";
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
                 renderAll();
 
                 randDialoge = Math.floor(Math.random() * (dialogueStage1.length));
@@ -3195,9 +3224,9 @@
                     console.log("Opp Eval - Bet");
                 }
 
-                let multi = Math.random() * ((confCheck / 17) * 0.5);
+                let multi = Math.random() * ((confCheck / 18) * 0.5);
                 if (testLog === true) {
-                    console.log("((confCheck / 17) * 0.5): " + ((confCheck / 17) * 0.5));
+                    console.log("((confCheck / 18) * 0.5): " + ((confCheck / 18) * 0.5));
                     console.log("Multiplier: " + multi);
                 }
 
@@ -3225,6 +3254,16 @@
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
 
                 reportSpace.innerHTML = ``;
                 reportSpace.innerHTML += `Opponent raises their bet to $${(oppBetMoney * 500).toLocaleString('en', {useGrouping:true})}<br><br>`;
@@ -3268,6 +3307,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     randDialoge = Math.floor(Math.random() * (dialogueOppFold.length));
                     dialogueSpace.innerText = dialogueOppFold[randDialoge];
@@ -3333,9 +3382,9 @@
                     console.log("Opp Eval - Bet");
                 }
 
-                let multi = Math.random() * (confCheck / 17);
+                let multi = Math.random() * (confCheck / 18);
                 if (testLog === true) {
-                    console.log("confCheck / 17: " + (confCheck / 17));
+                    console.log("confCheck / 18: " + (confCheck / 18));
                     console.log("Multiplier: " + multi);
                 }
 
@@ -3362,6 +3411,16 @@
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
 
                 reportSpace.innerHTML = ``;
                 reportSpace.innerHTML += `Opponent raises their bet to $${(oppBetMoney * 500).toLocaleString('en', {useGrouping:true})}<br><br>`;
@@ -3414,6 +3473,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     randDialoge = Math.floor(Math.random() * (dialogueOppFold.length));
                     dialogueSpace.innerText = dialogueOppFold[randDialoge];
@@ -3530,7 +3599,7 @@
 
             document.getElementById("option_space").style.visibility = "hidden";
 
-            document.getElementById("makebet_button").innerText = "Check";
+            document.getElementById("makebet_button").innerText = "Call";
         }
         
         function drawFiveHand() {
@@ -3602,11 +3671,21 @@
                 card = hiddenCard;
                 oppShowDeck.push(card);
                 cardCounter++;
-                document.getElementById("makebet_button").innerText = "Check";
+                document.getElementById("makebet_button").innerText = "Call";
                 document.getElementById("betup_button").style.visibility = "visible";
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
                 randDialoge = Math.floor(Math.random() * (dialogueNew.length));
                 dialogueSpace.innerText = dialogueNew[randDialoge];
 
@@ -3743,9 +3822,9 @@
                     console.log("Opp Eval - Bet");
                 }
 
-                let multi = Math.random() * ((confCheck / 17) * 0.5);
+                let multi = Math.random() * ((confCheck / 18) * 0.5);
                 if (testLog === true) {
-                    console.log("((confCheck / 17) * 0.5): " + ((confCheck / 17) * 0.5));
+                    console.log("((confCheck / 18) * 0.5): " + ((confCheck / 18) * 0.5));
                     console.log("Multiplier: " + multi);
                 }
 
@@ -3773,6 +3852,16 @@
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
 
                 reportSpace.innerHTML = ``;
                 reportSpace.innerHTML += `Opponent raises their bet to $${(oppBetMoney * 500).toLocaleString('en', {useGrouping:true})}<br><br>`;
@@ -3816,6 +3905,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     randDialoge = Math.floor(Math.random() * (dialogueOppFold.length));
                     dialogueSpace.innerText = dialogueOppFold[randDialoge];
@@ -4142,11 +4241,21 @@
                 document.getElementById("buttons2").style.display = "block";
                 document.getElementById("buttons3").style.display = "none";
 
-                document.getElementById("makebet_button").innerText = "Check";
+                document.getElementById("makebet_button").innerText = "Call";
                 document.getElementById("betup_button").style.visibility = "visible";
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
 
                 renderAll();
 
@@ -4191,9 +4300,9 @@
                     console.log("Opp Eval - Bet");
                 }
 
-                let multi = Math.random() * (confCheck / 17);
+                let multi = Math.random() * (confCheck / 18);
                 if (testLog === true) {
-                    console.log("confCheck / 17: " + (confCheck / 17));
+                    console.log("confCheck / 18: " + (confCheck / 18));
                     console.log("Multiplier: " + multi);
                 }
 
@@ -4220,6 +4329,16 @@
                 document.getElementById("betdown_button").style.visibility = "visible";
                 document.getElementById("makebet_button").style.visibility = "visible";
                 document.getElementById("fold_button").style.visibility = "visible";
+                document.getElementById("betup2_button").style.visibility = "visible";
+                document.getElementById("betup3_button").style.visibility = "visible";
+                document.getElementById("betdown2_button").style.visibility = "visible";
+                document.getElementById("betdown3_button").style.visibility = "visible";
+                document.getElementById("clearbet_button").style.visibility = "visible";
+                document.getElementById("allin_button").style.visibility = "visible";
+                document.getElementById("betup_button2").style.visibility = "visible";
+                document.getElementById("betup2_button2").style.visibility = "visible";
+                document.getElementById("betup3_button2").style.visibility = "visible";
+                document.getElementById("allin_button2").style.visibility = "visible";
 
                 reportSpace.innerHTML = ``;
                 reportSpace.innerHTML += `Opponent raises their bet to $${(oppBetMoney * 500).toLocaleString('en', {useGrouping:true})}<br><br>`;
@@ -4263,6 +4382,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     randDialoge = Math.floor(Math.random() * (dialogueOppFold.length));
                     dialogueSpace.innerText = dialogueOppFold[randDialoge];
@@ -4332,6 +4461,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     setTimeout(oppEvalPair, (tick * 4));
 
@@ -4348,6 +4487,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         setTimeout(oppEvalPair, (tick * 4));
 
@@ -4359,6 +4508,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         if (testLog === true) {
                             console.log("Player Check");
@@ -4393,6 +4552,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     setTimeout(oppEvalBoard, (tick * 4));
 
@@ -4409,6 +4578,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         setTimeout(oppEvalBoard, (tick * 4));
 
@@ -4425,6 +4604,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         if (testLog === true) {
                             console.log("Player Check");
@@ -4456,6 +4645,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     setTimeout(oppEvalFive, (tick * 4));
 
@@ -4472,6 +4671,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         setTimeout(oppEvalFive, (tick * 4));
 
@@ -4539,6 +4748,16 @@
                     document.getElementById("betdown_button").style.visibility = "hidden";
                     document.getElementById("makebet_button").style.visibility = "hidden";
                     document.getElementById("fold_button").style.visibility = "hidden";
+                    document.getElementById("betup2_button").style.visibility = "hidden";
+                    document.getElementById("betup3_button").style.visibility = "hidden";
+                    document.getElementById("betdown2_button").style.visibility = "hidden";
+                    document.getElementById("betdown3_button").style.visibility = "hidden";
+                    document.getElementById("clearbet_button").style.visibility = "hidden";
+                    document.getElementById("allin_button").style.visibility = "hidden";
+                    document.getElementById("betup_button2").style.visibility = "hidden";
+                    document.getElementById("betup2_button2").style.visibility = "hidden";
+                    document.getElementById("betup3_button2").style.visibility = "hidden";
+                    document.getElementById("allin_button2").style.visibility = "hidden";
 
                     setTimeout(oppEvalFiveFinal, (tick * 4));
 
@@ -4555,6 +4774,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         setTimeout(oppEvalFiveFinal, (tick * 4));
 
@@ -4571,6 +4800,16 @@
                         document.getElementById("betdown_button").style.visibility = "hidden";
                         document.getElementById("makebet_button").style.visibility = "hidden";
                         document.getElementById("fold_button").style.visibility = "hidden";
+                        document.getElementById("betup2_button").style.visibility = "hidden";
+                        document.getElementById("betup3_button").style.visibility = "hidden";
+                        document.getElementById("betdown2_button").style.visibility = "hidden";
+                        document.getElementById("betdown3_button").style.visibility = "hidden";
+                        document.getElementById("clearbet_button").style.visibility = "hidden";
+                        document.getElementById("allin_button").style.visibility = "hidden";
+                        document.getElementById("betup_button2").style.visibility = "hidden";
+                        document.getElementById("betup2_button2").style.visibility = "hidden";
+                        document.getElementById("betup3_button2").style.visibility = "hidden";
+                        document.getElementById("allin_button2").style.visibility = "hidden";
 
                         if (testLog === true) {
                             console.log("Player Check");
@@ -4596,11 +4835,95 @@
                 playerMoney += -1;
                 betMoney += 1;
             }
-            if (betMoney > oppBetMoney) {
+            
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
                 document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
             }
             else {
-                document.getElementById("makebet_button").innerText = "Check";
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            
+            renderMoney();
+        }
+
+        function increaseBet2() {
+            if (playerMoney > 1) {
+                playerMoney += -2;
+                betMoney += 2;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            renderMoney();
+        }
+
+        function increaseBet3() {
+            if (playerMoney > 19) {
+                playerMoney += -20;
+                betMoney += 20;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            renderMoney();
+        }
+
+        function allIn() {
+            if (playerMoney > 0) {
+                betMoney += playerMoney;
+                playerMoney = 0;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
             }
             renderMoney();
         }
@@ -4610,11 +4933,116 @@
                 playerMoney += 1;
                 betMoney += -1;
             }
-            if (betMoney > oppBetMoney) {
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
                 document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
             }
             else {
-                document.getElementById("makebet_button").innerText = "Check";
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            renderMoney();
+        }
+        
+        function decreaseBet2() {
+            if (betMoney > 1 && betMoney !== oppBetMoney) {
+                if (betMoney - oppBetMoney > 1) {
+                    playerMoney += 2;
+                    betMoney += -2;
+                }
+                else {
+                    playerMoney += 1;
+                    betMoney += -1;
+                }
+            }
+            else if (betMoney > 0 && betMoney !== oppBetMoney && oppBetMoney < 2) {
+                playerMoney += 1;
+                betMoney += -1;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            renderMoney();
+        }
+
+        function decreaseBet3() {
+            if (betMoney > 19 && betMoney !== oppBetMoney) {
+                if (betMoney - oppBetMoney > 19) {
+                    playerMoney += 20;
+                    betMoney += -20;
+                }
+                else {
+                    let val = 20 - oppBetMoney;
+                    playerMoney += val;
+                    betMoney += 0 - val;
+                }
+            }
+            else if (betMoney > 0 && betMoney !== oppBetMoney) {
+                let val = betMoney - oppBetMoney;
+                playerMoney += val;
+                betMoney += 0 - val;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
+            }
+            renderMoney();
+        }
+
+        function clearBet() {
+            if (betMoney > 0 && betMoney !== oppBetMoney) {
+                let betVal = betMoney - oppBetMoney;
+                betMoney = oppBetMoney;
+                playerMoney += betVal;
+            }
+            if (stage === 1 || stage === 3) {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Raise";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Check";
+                }
+            }
+            else {
+                if (betMoney > oppBetMoney) {
+                document.getElementById("makebet_button").innerText = "Bet";
+                }
+                else {
+                    document.getElementById("makebet_button").innerText = "Call";
+                }
             }
             renderMoney();
         }
@@ -4645,6 +5073,16 @@
             document.getElementById("betdown_button").style.visibility = "hidden";
             document.getElementById("makebet_button").style.visibility = "hidden";
             document.getElementById("fold_button").style.visibility = "hidden";
+            document.getElementById("betup2_button").style.visibility = "hidden";
+            document.getElementById("betup3_button").style.visibility = "hidden";
+            document.getElementById("betdown2_button").style.visibility = "hidden";
+            document.getElementById("betdown3_button").style.visibility = "hidden";
+            document.getElementById("clearbet_button").style.visibility = "hidden";
+            document.getElementById("allin_button").style.visibility = "hidden";
+            document.getElementById("betup_button2").style.visibility = "hidden";
+            document.getElementById("betup2_button2").style.visibility = "hidden";
+            document.getElementById("betup3_button2").style.visibility = "hidden";
+            document.getElementById("allin_button2").style.visibility = "hidden";
 
             randDialoge = Math.floor(Math.random() * (dialogueFold.length));
             dialogueSpace.innerText = dialogueFold[randDialoge];
@@ -4745,7 +5183,12 @@
                     console.log("Same Hand Type Detected");
                 }
 
-                if (playerHand[0] === 11) {
+                if (playerHand[0] === 13) {
+                    winningHand = "No Winner";
+                    winner = "Tie";
+                }
+                
+                if (playerHand[0] === 12) {
                     let pCard = playerHand[1];
                     let oCard = oppHand[1];
                     if (pCard.PairRank > oCard.PairRank) {
@@ -4762,7 +5205,7 @@
                     }
                 }
 
-                else if (playerHand[0] === 10) {
+                else if (playerHand[0] === 11) {
                     let pCard = playerHand[1];
                     let oCard = oppHand[1];
                     if (pCard.RankValue > oCard.RankValue) {
@@ -4779,7 +5222,7 @@
                     }
                 }
 
-                else if (playerHand[0] === 9) {
+                else if (playerHand[0] === 10) {
                     let pCard = playerHand[1];
                     let oCard = oppHand[1];
                     if (pCard.PairRank > oCard.PairRank) {
@@ -4801,6 +5244,23 @@
                             winningHand = oppHand;
                             winner = "Opponent"; 
                         }
+                    }
+                    else {
+                        winningHand = oppHand;
+                        winner = "Opponent";
+                    }
+                }
+
+                else if (playerHand[0] === 9) {
+                    let pCard = playerHand[4];
+                    let oCard = oppHand[4];
+                    if (pCard.PairRank > oCard.PairRank) {
+                        winningHand = playerHand;
+                        winner = "Player";
+                    }
+                    else if (pCard.PairRank === oCard.PairRank) {
+                        winningHand = "No Winner";
+                        winner = "Tie";
                     }
                     else {
                         winningHand = oppHand;
@@ -4873,6 +5333,35 @@
                     else if (pCard.RankValue === oCard.RankValue) {
                         winningHand = "No Winner";
                         winner = "Tie";
+                    }
+                    else {
+                        winningHand = oppHand;
+                        winner = "Opponent";
+                    }
+                }
+
+                else if (playerHand[0] === 5) {
+                    let pCard = playerHand[4];
+                    let oCard = oppHand[4];
+                    if (pCard.RankValue > oCard.RankValue) {
+                        winningHand = playerHand;
+                        winner = "Player";
+                    }
+                    else if (pCard.RankValue === oCard.RankValue) {
+                        pCard = playerHand[5];
+                        oCard = oppHand[5];
+                        if (pCard.RankValue > oCard.RankValue) {
+                            winningHand = playerHand;
+                            winner = "Player";
+                        }
+                        else if (pCard.RankValue === oCard.RankValue) {
+                            winningHand = "No Winner";
+                            winner = "Tie";
+                        }
+                        else {
+                            winningHand = oppHand;
+                            winner = "Opponent";
+                        }
                     }
                     else {
                         winningHand = oppHand;
@@ -5115,6 +5604,16 @@
             document.getElementById("betdown_button").style.visibility = "hidden";
             document.getElementById("makebet_button").style.visibility = "hidden";
             document.getElementById("fold_button").style.visibility = "hidden";
+            document.getElementById("betup2_button").style.visibility = "hidden";
+            document.getElementById("betup3_button").style.visibility = "hidden";
+            document.getElementById("betdown2_button").style.visibility = "hidden";
+            document.getElementById("betdown3_button").style.visibility = "hidden";
+            document.getElementById("clearbet_button").style.visibility = "hidden";
+            document.getElementById("allin_button").style.visibility = "hidden";
+            document.getElementById("betup_button2").style.visibility = "hidden";
+            document.getElementById("betup2_button2").style.visibility = "hidden";
+            document.getElementById("betup3_button2").style.visibility = "hidden";
+            document.getElementById("allin_button2").style.visibility = "hidden";
 
             if (playerMoney === 0) {
                 document.getElementById("newtexhand_button").style.visibility = "hidden";
@@ -5128,191 +5627,217 @@
         //Hand Calculation
         
         function calculateHand(deckType) {
-            //let space = eval(deckType + "Space");
-            let deck = eval(deckType + "Deck");
+            let errorPool;
+            try {
+                //let space = eval(deckType + "Space");
+                let deck = eval(deckType + "Deck");
 
-            if (testLog === true) {
-                console.log("##################-" + deckType + "-##################");
-            }
-
-            /*
-            //Testing - Deck Genration ###############################
-            //mainDeck = testHand;
-            //mainDeck = genPlaying54();
-            mainDeck = combineDecks();
-            shuffle(mainDeck);
-
-            for (i = 0; i < 2; i++) {
-                let card = mainDeck.shift();
-                handDeck.push(card);
-            }
-            for (i = 0; i < 5; i++) {
-                let card = mainDeck.shift();
-                riverDeck.push(card);
-            }
-            if (testLog === true) {
-                console.log("Hand: " + handDeck[0].Name + ", " + handDeck[1].Name);
-                console.log("River: " + riverDeck[0].Name + ", " + riverDeck[1].Name + ", " + riverDeck[2].Name + ", " + riverDeck[3].Name + ", " + riverDeck[4].Name);
-            }
-            //#########################################################
-            */
-
-            if (handDeck.length === 2) {
-                cardPool = [deck[0], deck[1], riverDeck[0], riverDeck[1], riverDeck[2], riverDeck[3], riverDeck[4]];
-            }
-            else {
-                cardPool = [deck[0], deck[1], deck[2], deck[3], deck[4]];
-            }
-
-            console.log("########-For bug reporting purposes only! No cheating!-########");
-            console.log("Card Pool:");
-            console.log(JSON.stringify(cardPool));
-
-            groups = calculateGroups();
-
-            straights = calculateStraights();
-
-            flushes = calculateFlush();
-
-            //Count Hands
-            doubleYakuCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Yaku === 2) {
-                    doubleYakuCounter++;
+                if (testLog === true) {
+                    console.log("##################-" + deckType + "-##################");
                 }
-            }
 
-            fiveCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Num > 4) {
-                    fiveCounter++;
+                /*
+                //Testing - Deck Genration ###############################
+                //mainDeck = testHand;
+                //mainDeck = genPlaying54();
+                mainDeck = combineDecks();
+                shuffle(mainDeck);
+
+                for (i = 0; i < 2; i++) {
+                    let card = mainDeck.shift();
+                    handDeck.push(card);
                 }
-            }
-
-            fourCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Num === 4) {
-                    fourCounter++;
+                for (i = 0; i < 5; i++) {
+                    let card = mainDeck.shift();
+                    riverDeck.push(card);
                 }
-            }
-
-            yakuCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Yaku === 1) {
-                    yakuCounter++;
-                }
-            }
-
-            threeCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Num === 3) {
-                    threeCounter++;
-                }
-            }
-
-            onePairCounter = 0;
-            for (i = 0; i < groups.length; i++) {
-                if (groups[i].Num === 2) {
-                    onePairCounter++;
-                }
-            }
-
-            fullCounter = 0;
-            if (threeCounter === 2 || (threeCounter === 1 && onePairCounter > 0) ){
-                fullCounter++;
-            }
-
-            twoPairCounter = 0;
-            if (onePairCounter > 1){
-                twoPairCounter++;
-            }
-
-            straightFlushCounter = 0;
-            for (i = 0; i < straights.length; i++) {
-                if (straights[i].Flush === true) {
-                    straightFlushCounter++;
-                }
-            }
-
-            flushCounter = flushes.length;
-
-            straightCounter = 0;
-            if (straights.length !== 0) {
-                straightCounter++;
-            }
-
-            if (testLog === true) {
-                console.log("########################################");
-
-                if (handDeck.length === 2) {
+                if (testLog === true) {
                     console.log("Hand: " + handDeck[0].Name + ", " + handDeck[1].Name);
                     console.log("River: " + riverDeck[0].Name + ", " + riverDeck[1].Name + ", " + riverDeck[2].Name + ", " + riverDeck[3].Name + ", " + riverDeck[4].Name);
                 }
+                //#########################################################
+                */
+
+                if (handDeck.length === 2) {
+                    cardPool = [deck[0], deck[1], riverDeck[0], riverDeck[1], riverDeck[2], riverDeck[3], riverDeck[4]];
+                }
                 else {
-                    console.log("Hand: " + handDeck[0].Name + ", " + handDeck[1].Name + ", " + handDeck[2].Name + ", " + handDeck[3].Name + ", " + handDeck[4].Name);
+                    cardPool = [deck[0], deck[1], deck[2], deck[3], deck[4]];
                 }
 
-                console.log("Double Yaku: " + doubleYakuCounter);
-                console.log("Five of a Kind: " + fiveCounter);
-                console.log("Straight Flush: " + straightFlushCounter);
-                console.log("Four of a Kind: " + fourCounter);
-                console.log("Full House: " + fullCounter);
-                console.log("Flush: " + flushCounter);
-                console.log("Straight: " + straightCounter);
-                console.log("Yaku: " + yakuCounter);
-                console.log("Three of a Kind: " + threeCounter);
-                console.log("Two Pair: " + twoPairCounter);
-                console.log("One Pair: " + onePairCounter);
+                errorPool = JSON.stringify(cardPool);
 
-                console.log("########################################");
-            }
+                
+                if (testLog === true) {
+                    console.log("Card Pool:");
+                    console.log(JSON.stringify(cardPool));
+                }
 
-            bestHand = [];
-            best = 0;
+                groups = calculateGroups();
 
-            //5 of a kind
-            if (doubleYakuCounter > 0) {
-                doubleYaku();
+                straights = calculateStraights();
+
+                flushes = calculateFlush();
+
+                //Count Hands
+                doubleYakuCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Yaku === 2) {
+                        doubleYakuCounter++;
+                    }
+                }
+
+                fiveCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num > 4) {
+                        fiveCounter++;
+                    }
+                }
+
+                fourCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 4) {
+                        fourCounter++;
+                    }
+                }
+
+                yakuCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Yaku === 1) {
+                        yakuCounter++;
+                    }
+                }
+
+                threeCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 3 && groups[i].Yaku === 0) {
+                        threeCounter++;
+                    }
+                }
+
+                onePairCounter = 0;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 2) {
+                        onePairCounter++;
+                    }
+                }
+
+                yakuFullCounter = 0;
+                if (yakuCounter > 0 && (onePairCounter > 0 || threeCounter > 0)) {
+                    yakuFullCounter++;
+                }
+
+                fullCounter = 0;
+                if (threeCounter === 2 || (threeCounter === 1 && onePairCounter > 0) ){
+                    fullCounter++;
+                }
+
+                twoPairCounter = 0;
+                if (onePairCounter > 1){
+                    twoPairCounter++;
+                }
+
+                straightFlushCounter = 0;
+                for (i = 0; i < straights.length; i++) {
+                    if (straights[i].Flush === true) {
+                        straightFlushCounter++;
+                    }
+                }
+
+                flushCounter = flushes.length;
+
+                straightCounter = 0;
+                if (straights.length !== 0) {
+                    straightCounter++;
+                }
+
+                if (testLog === true) {
+                    console.log("########################################");
+
+                    if (handDeck.length === 2) {
+                        console.log("Hand: " + handDeck[0].Name + ", " + handDeck[1].Name);
+                        console.log("River: " + riverDeck[0].Name + ", " + riverDeck[1].Name + ", " + riverDeck[2].Name + ", " + riverDeck[3].Name + ", " + riverDeck[4].Name);
+                    }
+                    else {
+                        console.log("Hand: " + handDeck[0].Name + ", " + handDeck[1].Name + ", " + handDeck[2].Name + ", " + handDeck[3].Name + ", " + handDeck[4].Name);
+                    }
+
+                    console.log("Double Yaku: " + doubleYakuCounter);
+                    console.log("Five of a Kind: " + fiveCounter);
+                    console.log("Straight Flush: " + straightFlushCounter);
+                    console.log("Four of a Kind: " + fourCounter);
+                    console.log("Yaku House: " + yakuFullCounter);
+                    console.log("Full House: " + fullCounter);
+                    console.log("Flush: " + flushCounter);
+                    console.log("Straight: " + straightCounter);
+                    console.log("Yaku: " + yakuCounter);
+                    console.log("Three of a Kind: " + threeCounter);
+                    console.log("Two Pair: " + twoPairCounter);
+                    console.log("One Pair: " + onePairCounter);
+
+                    console.log("########################################");
+                }
+
+                bestHand = [];
+                best = 0;
+
+                //5 of a kind
+                if (doubleYakuCounter > 0) {
+                    doubleYaku();
+                }
+                else if (fiveCounter > 0) {
+                    fiveKind();
+                }
+                else if (straightFlushCounter > 0) {
+                    straightFlush();
+                }
+                else if (fourCounter > 0) {
+                    fourKind();
+                }
+                else if (yakuFullCounter > 0) {
+                    yakuHouse();
+                }
+                else if (fullCounter > 0) {
+                    fullHouse();
+                }
+                else if (flushCounter > 0) {
+                    flush();
+                }
+                else if (straightCounter > 0) {
+                    straight();
+                }
+                else if (yakuCounter > 0) {
+                    yaku();
+                }
+                else if (threeCounter > 0) {
+                    threeKind();
+                }
+                else if (twoPairCounter > 0) {
+                    twoPair();
+                }
+                else if (onePairCounter > 0) {
+                    onePair();
+                }
+                else {
+                    junkHand();
+                }
+                if (testLog === true) {
+                    console.log("Best hand:");
+                    console.log(bestHand);
+                    console.log(JSON.stringify(bestHand));
+                }
+                return bestHand;
+                }
+            catch {
+                let cards = JSON.parse(errorPool);
+                console.log(cards);
+                let message = "Error detected in hand calculation! Sorry!\n\nIf you can, please report the card pool below to @Mr_Misfire on Twitter or email at totallynormalpoker@gmail.com\n\nCard Pool:\n"
+                for (i = 0; i < cards.length; i++) {
+                    message += cards[i].Name + "\n";
+                }
+                console.error(message);
+                alert(message);
             }
-            else if (fiveCounter > 0) {
-                fiveKind();
-            }
-            else if (straightFlushCounter > 0) {
-                straightFlush();
-            }
-            else if (fourCounter > 0) {
-                fourKind();
-            }
-            else if (fullCounter > 0) {
-                fullHouse();
-            }
-            else if (flushCounter > 0) {
-                flush();
-            }
-            else if (straightCounter > 0) {
-                straight();
-            }
-            else if (yakuCounter > 0) {
-                yaku();
-            }
-            else if (threeCounter > 0) {
-                threeKind();
-            }
-            else if (twoPairCounter > 0) {
-                twoPair();
-            }
-            else if (onePairCounter > 0) {
-                onePair();
-            }
-            else {
-                junkHand();
-            }
-            if (testLog === true) {
-                console.log("Best hand:");
-                console.log(bestHand);
-                console.log(JSON.stringify(bestHand));
-            }
-            return bestHand;
         }
 
         function calculateGroups() {
@@ -5623,7 +6148,9 @@
                     }
                 }
                 else if (groupsArray[i].Yaku > 0) {
-                    console.log("Yaku detected");
+                    if (testLog === true) {
+                        console.log("Yaku detected");
+                    }
                 }
             }
 
@@ -5659,7 +6186,9 @@
                     }
                 }
                 else if (groupsArray[i].Yaku > 0) {
-                    console.log("Yaku detected");
+                    if (testLog === true) {
+                        console.log("Yaku detected");
+                    }
                 }
             }
 
@@ -5879,7 +6408,9 @@
                     }
                 }
                 else if (groupsArray[i].Yaku > 0) {
-                    console.log("Yaku detected");
+                    if (testLog === true) {
+                        console.log("Yaku detected");
+                    }
                 }
             }
 
@@ -5915,7 +6446,9 @@
                     }
                 }
                 else if (groupsArray[i].Yaku > 0) {
-                    console.log("Yaku detected");
+                    if (testLog === true) {
+                        console.log("Yaku detected");
+                    }
                 }
             }
 
@@ -5951,7 +6484,9 @@
                     }
                 }
                 else if (groupsArray[i].Yaku > 0) {
-                    console.log("Yaku detected");
+                    if (testLog === true) {
+                        console.log("Yaku detected");
+                    }
                 }
             }
 
@@ -6007,76 +6542,86 @@
                     console.log("#################################################");
                     console.log("Rank Value: " + cardPool[i].RankValue);
                 }
-                let straight1 = cardPool[i].RankValue - 4;
-                let straight2 = cardPool[i].RankValue - 3;
-                let straight3 = cardPool[i].RankValue - 2;
-                let straight4 = cardPool[i].RankValue - 1;
-
-                if (testLog === true) {
-                    console.log("Straight Values: " + straight1 + ", " + straight2 + ", " + straight3 + ", " + straight4 + ", " + cardPool[i].RankValue);
-                }
-
-                let check1 = false;
-                let check2 = false;
-                let check3 = false;
-                let check4 = false;
-                let wildCounter = 0;
-
-                //Goes through each card and checks if the required cards are present in the card pool
-                //If a wild card is detected, wild counter is increased
-                for (x = 0; x < cardPool.length; x++) {
-                    if (cardPool[x].RankValue === straight1 || cardPool[x].RankAlt === straight1) {
-                        check1 = true;
-                    }
-                    if (cardPool[x].RankValue === straight2 || cardPool[x].RankAlt === straight2) {
-                        check2 = true;
-                    }
-                    if (cardPool[x].RankValue === straight3 || cardPool[x].RankAlt === straight3) {
-                        check3 = true;
-                    }
-                    if (cardPool[x].RankValue === straight4 || cardPool[x].RankAlt === straight4) {
-                        check4 = true;
-                    }
-                    if (cardPool[x].RankValue === "Wild" || cardPool[x].RankAlt === "Wild") {
-                        wildCounter++;
-                    }
-                }
-                if (testLog === true) {
-                    console.log("Pre-Wild ####################");
-                    console.log(check1 + " " + check2 + " " + check3 + " " + check4 + " " + cardPool[i].RankValue);
-                    console.log("Wilds: " + wildCounter);
-                }
-                //Goes through each false check and makes true for each wild card counted
-                if (check1 === false && wildCounter > 0) {
-                    check1 = true;
-                    wildCounter += -1;
-                }
-                if (check2 === false && wildCounter > 0) {
-                    check2 = true;
-                    wildCounter += -1;
-                }
-                if (check3 === false && wildCounter > 0) {
-                    check3 = true;
-                    wildCounter += -1;
-                }
-                if (check4 === false && wildCounter > 0) {
-                    check4 = true;
-                    wildCounter += -1;
-                }
-                if (testLog === true) {
-                    console.log("Post-Wild ####################");
-                    console.log(check1 + " " + check2 + " " + check3 + " " + check4 + " " + cardPool[i].RankValue);
-                    console.log("Wilds: " + wildCounter);
-                }
-
-                //If all checks are true, a straight is detected
-                if (check1 === true && check2 === true && check3 === true && check4 === true) {
+                
+                if (cardPool[i].RankValue === -100 || cardPool[i].RankValue === "Wild") {
                     if (testLog === true) {
-                        console.log("Straight detected!");
+                        console.log("Invalid rank detected");
+                        console.log(cardPool[i]);
                     }
-                    let straight = {Suit: cardPool[i].Suit, Value1: cardPool[i].RankValue, Value2: straight4, Value3: straight3, Value4: straight2, Value5: straight1}
-                    straightsArray.push(straight);
-                }    
+                }
+                else {
+                
+                    let straight1 = cardPool[i].RankValue - 4;
+                    let straight2 = cardPool[i].RankValue - 3;
+                    let straight3 = cardPool[i].RankValue - 2;
+                    let straight4 = cardPool[i].RankValue - 1;
+
+                    if (testLog === true) {
+                        console.log("Straight Values: " + straight1 + ", " + straight2 + ", " + straight3 + ", " + straight4 + ", " + cardPool[i].RankValue);
+                    }
+
+                    let check1 = false;
+                    let check2 = false;
+                    let check3 = false;
+                    let check4 = false;
+                    let wildCounter = 0;
+
+                    //Goes through each card and checks if the required cards are present in the card pool
+                    //If a wild card is detected, wild counter is increased
+                    for (x = 0; x < cardPool.length; x++) {
+                        if (cardPool[x].RankValue === straight1 || cardPool[x].RankAlt === straight1) {
+                            check1 = true;
+                        }
+                        if (cardPool[x].RankValue === straight2 || cardPool[x].RankAlt === straight2) {
+                            check2 = true;
+                        }
+                        if (cardPool[x].RankValue === straight3 || cardPool[x].RankAlt === straight3) {
+                            check3 = true;
+                        }
+                        if (cardPool[x].RankValue === straight4 || cardPool[x].RankAlt === straight4) {
+                            check4 = true;
+                        }
+                        if (cardPool[x].RankValue === "Wild" || cardPool[x].RankAlt === "Wild") {
+                            wildCounter++;
+                        }
+                    }
+                    if (testLog === true) {
+                        console.log("Pre-Wild ####################");
+                        console.log(check1 + " " + check2 + " " + check3 + " " + check4 + " " + cardPool[i].RankValue);
+                        console.log("Wilds: " + wildCounter);
+                    }
+                    //Goes through each false check and makes true for each wild card counted
+                    if (check1 === false && wildCounter > 0) {
+                        check1 = true;
+                        wildCounter += -1;
+                    }
+                    if (check2 === false && wildCounter > 0) {
+                        check2 = true;
+                        wildCounter += -1;
+                    }
+                    if (check3 === false && wildCounter > 0) {
+                        check3 = true;
+                        wildCounter += -1;
+                    }
+                    if (check4 === false && wildCounter > 0) {
+                        check4 = true;
+                        wildCounter += -1;
+                    }
+                    if (testLog === true) {
+                        console.log("Post-Wild ####################");
+                        console.log(check1 + " " + check2 + " " + check3 + " " + check4 + " " + cardPool[i].RankValue);
+                        console.log("Wilds: " + wildCounter);
+                    }
+
+                    //If all checks are true, a straight is detected
+                    if (check1 === true && check2 === true && check3 === true && check4 === true) {
+                        if (testLog === true) {
+                            console.log("Straight detected!");
+                        }
+                        let straight = {Suit: cardPool[i].Suit, Value1: cardPool[i].RankValue, Value2: straight4, Value3: straight3, Value4: straight2, Value5: straight1}
+                        straightsArray.push(straight);
+                    }  
+                }  
             }
             if (testLog === true) {
                 console.log("Straights:");
@@ -6192,7 +6737,7 @@
             else if (best.Value === "yaku7yaku8") {
                 bestHand.push(...yaku7yaku8);
             }
-            bestHand.unshift(12);
+            bestHand.unshift(13);
         }
         
         function fiveKind() {
@@ -6254,7 +6799,7 @@
                     x++;
                 }
             }
-            bestHand.unshift(11);
+            bestHand.unshift(12);
         }
         
         function straightFlush() {
@@ -6361,7 +6906,7 @@
                     }
                 }
             }
-            bestHand.unshift(10);
+            bestHand.unshift(11);
         }
 
         function fourKind() {
@@ -6460,593 +7005,604 @@
                 }
             }
             bestHand.push(best);
-            bestHand.unshift(9);
+            bestHand.unshift(10);
         }
 
-        function fullHouse() {
-            if (threeCounter === 2) {
+        function yakuHouse() {
+            let yakuValue;
+            if (threeCounter === 1) {
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Yaku === 1) {
+                        yakuValue = groups[i].Value;
+                    }
+                }
                 let compare = [];
-
-                if (groups[0].Yaku < 1) {
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Num === 3) {
-                            compare.push(groups[i].Rank);
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Compare:");
-                        console.log(compare);
-                    }
-                    let topValue = Math.max(...compare);
-                    if (testLog === true) {
-                        console.log("Top: " + topValue);
-                    }
-
-                    let threeValue;
-                    let twoValue;
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Rank === topValue) {
-                            threeValue = groups[i].Value;
-                        }
-                        else if (groups[i].Num === 3) {
-                            twoValue = groups[i].Value;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Three: " + threeValue);
-                        console.log("Pair: " + twoValue);
-                    }
-                    let pairCounter = 0;
-                    let altCounter = 0;
+                if (yakuValue === "yaku1") {
+                    bestHand.push(...yaku1);
                     for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === threeValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === threeValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Regular cards: " + pairCounter);
-                        console.log("Alt cards: " + altCounter);
-                    }
-                    if (pairCounter === 3) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 3) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                        x = 0;
-                        y = 0;
-                        while (y < (3 - pairCounter)) {
-                            if (cardPool[x].PairAlt === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    pairCounter = 0;
-                    altCounter = 0;
-                    for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === twoValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === twoValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Regular cards: " + pairCounter);
-                        console.log("Alt cards: " + altCounter);
-                    }
-                    if (pairCounter > 1) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 2) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                        x = 0;
-                        y = 0;
-                        while (y < (2 - pairCounter)) {
-                            if (cardPool[x].PairAlt === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                        if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
+                        cardPool[i].Name === "Susuki Grass (Full Moon)" ||
+                        cardPool[i].Name === "Chrysanthemum (Sake Cup)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
                     }
                 }
-                else {
-                    if (groups[0].Value === "yaku1") {
-                        bestHand.push(...yaku1);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
-                            cardPool[i].Name === "Susuki Grass (Full Moon)" ||
-                            cardPool[i].Name === "Chrysanthemum (Sake Cup)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku2") {
-                        bestHand.push(...yaku2);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
-                            cardPool[i].Name === "Pine (Crane)" ||
-                            cardPool[i].Name === "Plum Blossom (Bush Warbler)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku3") {
-                        bestHand.push(...yaku3);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Pine (Poetry Ribbon)" ||
-                            cardPool[i].Name === "Plum Blossom (Poetry Ribbon)" ||
-                            cardPool[i].Name === "Cherry Blossom (Poetry Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku4") {
-                        bestHand.push(...yaku4);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Peony (Blue Ribbon)" ||
-                            cardPool[i].Name === "Chrysanthemum (Blue Ribbon)" ||
-                            cardPool[i].Name === "Maple (Blue Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku5") {
-                        bestHand.push(...yaku5);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Peony (Butterfly)" ||
-                            cardPool[i].Name === "Chrysanthemum (Sake Cup)" ||
-                            cardPool[i].Name === "Maple (Deer)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku6") {
-                        bestHand.push(...yaku6);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Wisteria (Red Ribbon)" ||
-                            cardPool[i].Name === "Bush Clover (Red Ribbon)" ||
-                            cardPool[i].Name === "Willow (Red Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku7") {
-                        bestHand.push(...yaku7);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Wisteria (Cuckoo)" ||
-                            cardPool[i].Name === "Iris (Bridge)" ||
-                            cardPool[i].Name === "Bush Clover (Boar)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku8") {
-                        bestHand.push(...yaku8);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Susuki Grass (Geese)" ||
-                            cardPool[i].Name === "Maple (Deer)" ||
-                            cardPool[i].Name === "Bush Clover (Boar)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    let threeValue;
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Num === 3) {
-                            threeValue = groups[i].Value;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Three: " + threeValue);
-                    }
-                    let pairCounter = 0;
-                    let altCounter = 0;
+                else if (yakuValue === "yaku2") {
+                    bestHand.push(...yaku2);
                     for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === threeValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === threeValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Regular cards: " + pairCounter);
-                        console.log("Alt cards: " + altCounter);
-                    }
-                    if (pairCounter === 3) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 2) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                        if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
+                        cardPool[i].Name === "Pine (Crane)" ||
+                        cardPool[i].Name === "Plum Blossom (Bush Warbler)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
                     }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                }
+                else if (yakuValue === "yaku3") {
+                    bestHand.push(...yaku3);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Pine (Poetry Ribbon)" ||
+                        cardPool[i].Name === "Plum Blossom (Poetry Ribbon)" ||
+                        cardPool[i].Name === "Cherry Blossom (Poetry Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
-                        x = 0;
-                        y = 0;
-                        while (y < (2 - pairCounter)) {
-                            if (cardPool[x].PairAlt === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                    }
+                }
+                else if (yakuValue === "yaku4") {
+                    bestHand.push(...yaku4);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Peony (Blue Ribbon)" ||
+                        cardPool[i].Name === "Chrysanthemum (Blue Ribbon)" ||
+                        cardPool[i].Name === "Maple (Blue Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
+                    }
+                }
+                else if (yakuValue === "yaku5") {
+                    bestHand.push(...yaku5);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Peony (Butterfly)" ||
+                        cardPool[i].Name === "Chrysanthemum (Sake Cup)" ||
+                        cardPool[i].Name === "Maple (Deer)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku6") {
+                    bestHand.push(...yaku6);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Wisteria (Red Ribbon)" ||
+                        cardPool[i].Name === "Bush Clover (Red Ribbon)" ||
+                        cardPool[i].Name === "Willow (Red Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku7") {
+                    bestHand.push(...yaku7);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Wisteria (Cuckoo)" ||
+                        cardPool[i].Name === "Iris (Bridge)" ||
+                        cardPool[i].Name === "Bush Clover (Boar)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku8") {
+                    bestHand.push(...yaku8);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Susuki Grass (Geese)" ||
+                        cardPool[i].Name === "Maple (Deer)" ||
+                        cardPool[i].Name === "Bush Clover (Boar)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                let threeValue;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 3) {
+                        threeValue = groups[i].Value;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Three: " + threeValue);
+                }
+                let pairCounter = 0;
+                let altCounter = 0;
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === threeValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === threeValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Regular cards: " + pairCounter);
+                    console.log("Alt cards: " + altCounter);
+                }
+                if (pairCounter === 3) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 2) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (2 - pairCounter)) {
+                        if (cardPool[x].PairAlt === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
                     }
                 }
             }
             else {
-                if (groups[0].Yaku < 1) {
-                    let threeValue;
-                    let twoValue;
-                    let twoValueArray = [];
-
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Num === 3) {
-                            threeValue = groups[i].Value;
-                        }
-                        else if (groups[i].Num === 2) {
-                            twoValueArray.push(groups[i].Rank);
-                        }
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Yaku === 1) {
+                        yakuValue = groups[i].Value;
                     }
-
-                    if (testLog === true) {
-                        console.log("twoValueArray:");
-                        console.log(twoValueArray);
-                    }
-
-                    let topRank = Math.max(...twoValueArray);
-
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Rank === topRank) {
-                            twoValue = groups[i].Value;
-                        }
-                    }
-
-                    if (testLog === true) {
-                        console.log("Three: " + threeValue);
-                        console.log("Pair: " + twoValue);
-                    }
-                    let pairCounter = 0;
-                    let altCounter = 0;
+                }
+                console.log("YAKU:");
+                console.log(yakuValue);
+                if (yakuValue === "yaku1") {
+                    bestHand.push(...yaku1);
                     for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === threeValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === threeValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Three Regular cards: " + pairCounter);
-                        console.log("Three Alt cards: " + altCounter);
-                    }
-                    if (pairCounter === 3) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 3) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                        x = 0;
-                        y = 0;
-                        while (y < (3 - pairCounter)) {
-                            if (cardPool[x].PairAlt === threeValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    pairCounter = 0;
-                    altCounter = 0;
-
-                    if (testLog === true) {
-                        console.log("TEST CARD POOL:");
-                        console.log(JSON.stringify(cardPool));
-                        console.log("twoValue:");
-                        console.log(twoValue);
-                    }
-                    for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === twoValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === twoValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Pair Regular cards: " + pairCounter);
-                        console.log("Pair Alt cards: " + altCounter);
-                    }
-                    if (pairCounter > 1) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 2) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                    }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
-                        }
-                        x = 0;
-                        y = 0;
-                        while (y < (2 - pairCounter)) {
-                            if (cardPool[x].PairAlt === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                        if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
+                        cardPool[i].Name === "Susuki Grass (Full Moon)" ||
+                        cardPool[i].Name === "Chrysanthemum (Sake Cup)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
                     }
                 }
-                else {
-                    console.log("YAKU:");
-                    console.log(groups[0]);
-                    if (groups[0].Value === "yaku1") {
-                        bestHand.push(...yaku1);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
-                            cardPool[i].Name === "Susuki Grass (Full Moon)" ||
-                            cardPool[i].Name === "Chrysanthemum (Sake Cup)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku2") {
-                        bestHand.push(...yaku2);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
-                            cardPool[i].Name === "Pine (Crane)" ||
-                            cardPool[i].Name === "Plum Blossom (Bush Warbler)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku3") {
-                        bestHand.push(...yaku3);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Pine (Poetry Ribbon)" ||
-                            cardPool[i].Name === "Plum Blossom (Poetry Ribbon)" ||
-                            cardPool[i].Name === "Cherry Blossom (Poetry Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku4") {
-                        bestHand.push(...yaku4);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Peony (Blue Ribbon)" ||
-                            cardPool[i].Name === "Chrysanthemum (Blue Ribbon)" ||
-                            cardPool[i].Name === "Maple (Blue Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku5") {
-                        bestHand.push(...yaku5);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Peony (Butterfly)" ||
-                            cardPool[i].Name === "Chrysanthemum (Sake Cup)" ||
-                            cardPool[i].Name === "Maple (Deer)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku6") {
-                        bestHand.push(...yaku6);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Wisteria (Red Ribbon)" ||
-                            cardPool[i].Name === "Bush Clover (Red Ribbon)" ||
-                            cardPool[i].Name === "Willow (Red Ribbon)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku7") {
-                        bestHand.push(...yaku7);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Wisteria (Cuckoo)" ||
-                            cardPool[i].Name === "Iris (Bridge)" ||
-                            cardPool[i].Name === "Bush Clover (Boar)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    else if (groups[0].Value === "yaku8") {
-                        bestHand.push(...yaku8);
-                        for (i = 0; i < cardPool.length; i++) {
-                            if (cardPool[i].Name === "Susuki Grass (Geese)" ||
-                            cardPool[i].Name === "Maple (Deer)" ||
-                            cardPool[i].Name === "Bush Clover (Boar)") {
-                                cardPool.splice(i,1);
-                                i = -1;
-                            }
-                        }
-                    }
-                    let twoValue;
-                    let twoValueArray = [];
-
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Num === 2) {
-                            twoValueArray.push(groups[i].Rank);
-                        }
-                    }
-
-                    if (testLog === true) {
-                        console.log("twoValueArray:");
-                        console.log(twoValueArray);
-                    }
-
-                    let topRank = Math.max(...twoValueArray);
-
-                    for (i = 0; i < groups.length; i++) {
-                        if (groups[i].Rank === topRank) {
-                            twoValue = groups[i].Value;
-                        }
-                    }
-
-                    if (testLog === true) {
-                        console.log("Pair: " + twoValue);
-                    }
-                    let pairCounter = 0;
-                    let altCounter = 0;
-
-                    if (testLog === true) {
-                        console.log("TEST CARD POOL:");
-                        console.log(JSON.stringify(cardPool));
-                        console.log("twoValue:");
-                        console.log(twoValue);
-                    }
+                else if (yakuValue === "yaku2") {
+                    bestHand.push(...yaku2);
                     for (i = 0; i < cardPool.length; i++) {
-                        if (cardPool[i].PairValue === twoValue) {
-                            pairCounter++;
-                        }
-                        else if (cardPool[i].PairAlt === twoValue) {
-                            altCounter++;
-                        }
-                    }
-                    if (testLog === true) {
-                        console.log("Pair Regular cards: " + pairCounter);
-                        console.log("Pair Alt cards: " + altCounter);
-                    }
-                    if (pairCounter > 1) {
-                        let x = 0;
-                        let y = 0;
-                        while (y < 2) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                        if (cardPool[i].Name === "Cherry Blossom (Curtain)" ||
+                        cardPool[i].Name === "Pine (Crane)" ||
+                        cardPool[i].Name === "Plum Blossom (Bush Warbler)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
                     }
-                    else {
-                        let x = 0;
-                        let y = 0;
-                        while (y < pairCounter) {
-                            if (cardPool[x].PairValue === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                }
+                else if (yakuValue === "yaku3") {
+                    bestHand.push(...yaku3);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Pine (Poetry Ribbon)" ||
+                        cardPool[i].Name === "Plum Blossom (Poetry Ribbon)" ||
+                        cardPool[i].Name === "Cherry Blossom (Poetry Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
-                        x = 0;
-                        y = 0;
-                        while (y < (2 - pairCounter)) {
-                            if (cardPool[x].PairAlt === twoValue) {
-                                y++;
-                                let card = cardPool[x];
-                                bestHand.push(card);
-                            }
-                            x++;
+                    }
+                }
+                else if (yakuValue === "yaku4") {
+                    bestHand.push(...yaku4);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Peony (Blue Ribbon)" ||
+                        cardPool[i].Name === "Chrysanthemum (Blue Ribbon)" ||
+                        cardPool[i].Name === "Maple (Blue Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
                         }
+                    }
+                }
+                else if (yakuValue === "yaku5") {
+                    bestHand.push(...yaku5);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Peony (Butterfly)" ||
+                        cardPool[i].Name === "Chrysanthemum (Sake Cup)" ||
+                        cardPool[i].Name === "Maple (Deer)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku6") {
+                    bestHand.push(...yaku6);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Wisteria (Red Ribbon)" ||
+                        cardPool[i].Name === "Bush Clover (Red Ribbon)" ||
+                        cardPool[i].Name === "Willow (Red Ribbon)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku7") {
+                    bestHand.push(...yaku7);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Wisteria (Cuckoo)" ||
+                        cardPool[i].Name === "Iris (Bridge)" ||
+                        cardPool[i].Name === "Bush Clover (Boar)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                else if (yakuValue === "yaku8") {
+                    bestHand.push(...yaku8);
+                    for (i = 0; i < cardPool.length; i++) {
+                        if (cardPool[i].Name === "Susuki Grass (Geese)" ||
+                        cardPool[i].Name === "Maple (Deer)" ||
+                        cardPool[i].Name === "Bush Clover (Boar)") {
+                            cardPool.splice(i,1);
+                            i = -1;
+                        }
+                    }
+                }
+                let twoValue;
+                let twoValueArray = [];
+
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 2) {
+                        twoValueArray.push(groups[i].Rank);
+                    }
+                }
+
+                if (testLog === true) {
+                    console.log("twoValueArray:");
+                    console.log(twoValueArray);
+                }
+
+                let topRank = Math.max(...twoValueArray);
+
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Rank === topRank) {
+                        twoValue = groups[i].Value;
+                    }
+                }
+
+                if (testLog === true) {
+                    console.log("Pair: " + twoValue);
+                }
+                let pairCounter = 0;
+                let altCounter = 0;
+
+                if (testLog === true) {
+                    console.log("TEST CARD POOL:");
+                    console.log(JSON.stringify(cardPool));
+                    console.log("twoValue:");
+                    console.log(twoValue);
+                }
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === twoValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === twoValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Pair Regular cards: " + pairCounter);
+                    console.log("Pair Alt cards: " + altCounter);
+                }
+                if (pairCounter > 1) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 2) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (2 - pairCounter)) {
+                        if (cardPool[x].PairAlt === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+            }
+            bestHand.unshift(9);
+        }
+        
+        function fullHouse() {
+            if (threeCounter === 2) {
+                let compare = [];
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 3) {
+                        compare.push(groups[i].Rank);
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Compare:");
+                    console.log(compare);
+                }
+                let topValue = Math.max(...compare);
+                if (testLog === true) {
+                    console.log("Top: " + topValue);
+                }
+
+                let threeValue;
+                let twoValue;
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Rank === topValue) {
+                        threeValue = groups[i].Value;
+                    }
+                    else if (groups[i].Num === 3) {
+                        twoValue = groups[i].Value;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Three: " + threeValue);
+                    console.log("Pair: " + twoValue);
+                }
+                let pairCounter = 0;
+                let altCounter = 0;
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === threeValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === threeValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Regular cards: " + pairCounter);
+                    console.log("Alt cards: " + altCounter);
+                }
+                if (pairCounter === 3) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 3) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (3 - pairCounter)) {
+                        if (cardPool[x].PairAlt === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                pairCounter = 0;
+                altCounter = 0;
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === twoValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === twoValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Regular cards: " + pairCounter);
+                    console.log("Alt cards: " + altCounter);
+                }
+                if (pairCounter > 1) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 2) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (2 - pairCounter)) {
+                        if (cardPool[x].PairAlt === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+            }
+            else {
+                let threeValue;
+                let twoValue;
+                let twoValueArray = [];
+
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Num === 3) {
+                        threeValue = groups[i].Value;
+                    }
+                    else if (groups[i].Num === 2) {
+                        twoValueArray.push(groups[i].Rank);
+                    }
+                }
+
+                if (testLog === true) {
+                    console.log("twoValueArray:");
+                    console.log(twoValueArray);
+                }
+
+                let topRank = Math.max(...twoValueArray);
+
+                for (i = 0; i < groups.length; i++) {
+                    if (groups[i].Rank === topRank) {
+                        twoValue = groups[i].Value;
+                    }
+                }
+
+                if (testLog === true) {
+                    console.log("Three: " + threeValue);
+                    console.log("Pair: " + twoValue);
+                }
+                let pairCounter = 0;
+                let altCounter = 0;
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === threeValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === threeValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Three Regular cards: " + pairCounter);
+                    console.log("Three Alt cards: " + altCounter);
+                }
+                if (pairCounter === 3) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 3) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (3 - pairCounter)) {
+                        if (cardPool[x].PairAlt === threeValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                pairCounter = 0;
+                altCounter = 0;
+
+                if (testLog === true) {
+                    console.log("TEST CARD POOL:");
+                    console.log(JSON.stringify(cardPool));
+                    console.log("twoValue:");
+                    console.log(twoValue);
+                }
+                for (i = 0; i < cardPool.length; i++) {
+                    if (cardPool[i].PairValue === twoValue) {
+                        pairCounter++;
+                    }
+                    else if (cardPool[i].PairAlt === twoValue) {
+                        altCounter++;
+                    }
+                }
+                if (testLog === true) {
+                    console.log("Pair Regular cards: " + pairCounter);
+                    console.log("Pair Alt cards: " + altCounter);
+                }
+                if (pairCounter > 1) {
+                    let x = 0;
+                    let y = 0;
+                    while (y < 2) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let x = 0;
+                    let y = 0;
+                    while (y < pairCounter) {
+                        if (cardPool[x].PairValue === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
+                    }
+                    x = 0;
+                    y = 0;
+                    while (y < (2 - pairCounter)) {
+                        if (cardPool[x].PairAlt === twoValue) {
+                            y++;
+                            let card = cardPool[x];
+                            bestHand.push(card);
+                        }
+                        x++;
                     }
                 }
             }
@@ -8105,9 +8661,11 @@
                 console.log("Speed Data loaded from storage");
                 if (localStorage.getItem("speed") === "normal") {
                     tick = 400;
+                    document.getElementById("normal_speed").checked = true;
                 }
                 else if (localStorage.getItem("speed") === "fast") {
                     tick = 50;
+                    document.getElementById("fast_speed").checked = true;
                 }
             }
         } 
@@ -8231,15 +8789,29 @@
         .buttons button {
             height: 30px;
         }
+        .bet_button {
+            width: 100px;
+            color: #ffffff;
+            background-color: #2f4f4f;
+        }
+        .betval_button {
+            width: 60px;
+            margin-bottom: 3px;
+        }
+        .betall_button {
+            width: 80px;
+        }
         .holdfirst_button {
-            margin: 0 0 0 15px;
+            margin: 0 0 0 0;
         }
         .hold_button {
-            margin: 0 0 0 5px;
+            margin: 0 0 3px 5px;
         }
         .holddeal_button {
-            margin: 0 0 0 10px;
+            margin: 0 0 0 0;
             width: 100px;
+            color: #ffffff;
+            background-color: #2f4f4f;
         }
         .clear_container {
             overflow:auto;
@@ -8274,7 +8846,7 @@
             margin: 0 20px;
         }
         .inventory {
-            background-color: darkslategray;
+            background-color: #2f4f4f;
             min-width: 600px;
             box-sizing: border-box;
             padding: 5px;
@@ -8293,7 +8865,7 @@
             color: #ffd700;
         }
         .report {
-            background-color: black;
+            background-color: #000000;
             color: #ffffff;
             min-height: 90px;
             padding: 5px;
@@ -8447,7 +9019,7 @@
             background-color: #008000;
         }
         .uno_wild{
-            background-color: hsl(0, 0%, 0%);
+            background-color: #000000;
         }
         .tarot{
             background-color: #ffe4c4;
@@ -8568,6 +9140,16 @@
         a:hover {
             color: #87ceeb;
         }
+        .button_break {
+            display: none;
+        }
+        .increase1 {
+            display: inline;
+            visibility: visible;
+        }
+        .increase2 {
+            display: none;
+        }
         footer {
             font-size: 0.8em;
             position:fixed;
@@ -8606,6 +9188,16 @@
         .links_space {
             font-size: 1em;
         }
+        .increase1 {
+            display: none;
+        }
+        .increase2 {
+            display: inline;
+            visibility: visible;
+        }
+        .button_break {
+            display: block;
+        }
         footer {
             position:static;
         }
@@ -8633,10 +9225,26 @@
         <div id="bet_space" class="inventory bet"></div>
         <div id="pot_space" class="inventory pot"></div>
         <div id="buttons2" class="buttons">
-            <button id="betup_button" type="button" onclick="increaseBet();" style="visibility: hidden;">Bet +$500</button>
-            <button id="betdown_button" type="button" onclick="decreaseBet();" style="visibility: hidden;">Bet -$500</button>
-            <button id="makebet_button" type="button" onclick="checkRaise();" style="visibility: hidden;">Check</button>
-            <button id="fold_button" type="button" onclick="foldHand();" style="visibility: hidden;">Fold</button>
+            <span class="increase1">
+                <button id="allin_button" class="betall_button" type="button" onclick="allIn();" style="visibility: hidden;">All In</button>
+                <button id="betup3_button" class="betval_button" type="button" onclick="increaseBet3();" style="visibility: hidden;">+$10K</button>
+                <button id="betup2_button" class="betval_button" type="button" onclick="increaseBet2();" style="visibility: hidden;">+$1K</button>
+                <button id="betup_button" class="betval_button" type="button" onclick="increaseBet();" style="visibility: hidden;">+$500</button>
+            </span>
+            <span class="increase2">
+                <button id="betup_button2" class="betval_button" type="button" onclick="increaseBet();" style="visibility: hidden;">+$500</button>
+                <button id="betup2_button2" class="betval_button" type="button" onclick="increaseBet2();" style="visibility: hidden;">+$1K</button>
+                <button id="betup3_button2" class="betval_button" type="button" onclick="increaseBet3();" style="visibility: hidden;">+$10K</button>
+                <button id="allin_button2" class="betall_button" type="button" onclick="allIn();" style="visibility: hidden;">All In</button>
+            </span>
+            <br class="button_break">
+            <button id="betdown_button" class="betval_button" type="button" onclick="decreaseBet();" style="visibility: hidden;">-$500</button>
+            <button id="betdown2_button" class="betval_button" type="button" onclick="decreaseBet2();" style="visibility: hidden;">-$1K</button>
+            <button id="betdown3_button" class="betval_button" type="button" onclick="decreaseBet3();" style="visibility: hidden;">-$10K</button>
+            <button id="clearbet_button" class="betall_button" type="button" onclick="clearBet();" style="visibility: hidden;">Clear Bet</button>
+            <br>
+            <button id="makebet_button" class="bet_button" type="button" onclick="checkRaise();" style="visibility: hidden;">Call</button>
+            <button id="fold_button" class="bet_button" type="button" onclick="foldHand();" style="visibility: hidden;">Fold</button>
         </div>
         <div id="buttons3" class="buttons" style="display: none">
             <button class="holdfirst_button" id="hold1_button" type="button" onclick="holdCard1();">Hold</button>
@@ -8644,6 +9252,7 @@
             <button class="hold_button" id="hold3_button" type="button" onclick="holdCard3();">Hold</button>
             <button class="hold_button" id="hold4_button" type="button" onclick="holdCard4();">Hold</button>
             <button class="hold_button" id="hold5_button" type="button" onclick="holdCard5();">Hold</button>
+            <br>
             <button class="holddeal_button" id="holddeal_button" type="button" onclick="holdDealStart();">Deal</button>
         </div>
         <div id="report_space" class="report"></div>
@@ -8655,14 +9264,14 @@
                 <input type="radio" name="render_radio" value="image" id="image_render" onclick="saveValues(); renderAllCards();" checked>
                 <label for="image_render">Image</label>
                 <input type="radio" name="render_radio" value="text" id="text_render" onclick="saveValues(); renderAllCards();">
-                <label for="text_render">Text</label>
+                <label for="text_render">HTML</label>
             </div>
             <div id="speed_container" class="speed_container">
                 <label for="speed_radio">Speed:</label>
                 <input type="radio" name="speed_radio" value="normal" id="normal_speed" onclick="saveValues();" checked>
-                <label for="image_speed">Normal</label>
+                <label for="normal_speed">Normal</label>
                 <input type="radio" name="speed_radio" value="fast" id="fast_speed" onclick="saveValues();">
-                <label for="text_speed">Fast</label>
+                <label for="fast_speed">Fast</label>
             </div>
             <div class="clear_container"><button id="clear_button" class="clear_button" type="button" onclick="clearStorage();">Clear Saved Data</button></div>
             <div id="debug_space">
