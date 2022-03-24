@@ -32,6 +32,7 @@
         //~Tweaked issue with folding after making a bet
         //~Added scroll to winning hand after reveal
         //~Tweaked formatting for report space
+        //~Removed Ace alt pair from UNO Wild card
         
         //I went into this project with a very dumb idea and absolutely no clue how to write code for evaluating poker hands. I've come out with a very dumb game and code that can kinda evaluate poker hands most of the time. It's actually been very fun to write and test, even if it was a pain to debug at times due to my lack of annotation. Hope you enjoy!
 
@@ -1073,7 +1074,7 @@
             }
 
             for (i = 0; i < 4; i++) {
-                card = {Name: "Wild", PairValue: "Wild", PairAlt: "A", PairRank: 0, RankValue: "Wild", RankAlt: null, Suit: "Wild", Colour: "Wild", Type: "uno"};
+                card = {Name: "Wild", PairValue: "Wild", PairAlt: null, PairRank: 0, RankValue: "Wild", RankAlt: null, Suit: "Wild", Colour: "Wild", Type: "uno"};
                 deck.push(card);
                 card = {Name: "Wild Draw 4", PairValue: "Draw4", PairAlt: null, PairRank: 4.5, RankValue: 4, RankAlt: null, Suit: "Wild", Colour: "Wild", Type: "uno"};
                 deck.push(card);
