@@ -30,6 +30,8 @@
         //~Switched names and text rendering of Justice and Strength tarot cards to reflect image rendering
         //~Tweaked increase bet buttons
         //~Tweaked issue with folding after making a bet
+        //~Added scroll to winning hand after reveal
+        //~Tweaked formatting for report space
         
         //I went into this project with a very dumb idea and absolutely no clue how to write code for evaluating poker hands. I've come out with a very dumb game and code that can kinda evaluate poker hands most of the time. It's actually been very fun to write and test, even if it was a pain to debug at times due to my lack of annotation. Hope you enjoy!
 
@@ -2921,7 +2923,7 @@
                 reportSpace.innerHTML += `Current Hand: `;
                 for (i = 0; i < handDeck.length; i++) {
                     if (handDeck[i].Type !== "hidden") {
-                        reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                        reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                     }
                 }
                 reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -2931,7 +2933,7 @@
                 reportSpace.innerHTML += `Board: `;
                 for (i = 0; i < riverDeck.length; i++) {
                     if (riverDeck[i].Type !== "hidden") {
-                        reportSpace.innerHTML += `<span class="report_${riverDeck[i].Colour}">${riverDeck[i].Name}</span>, `;
+                        reportSpace.innerHTML += `<span class="report_name report_${riverDeck[i].Colour}">${riverDeck[i].Name}</span>, `;
                     }
                 }
                 reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -3279,7 +3281,7 @@
                     reportSpace.innerHTML += `Current Hand: `;
                     for (i = 0; i < handDeck.length; i++) {
                         if (handDeck[i].Type !== "hidden") {
-                            reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                            reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                         }
                     }
                     reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -3436,7 +3438,7 @@
                     reportSpace.innerHTML += `Current Hand: `;
                     for (i = 0; i < handDeck.length; i++) {
                         if (handDeck[i].Type !== "hidden") {
-                            reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                            reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                         }
                     }
                     reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -3445,7 +3447,7 @@
                 reportSpace.innerHTML += `Board: `;
                 for (i = 0; i < riverDeck.length; i++) {
                     if (riverDeck[i].Type !== "hidden") {
-                        reportSpace.innerHTML += `<span class="report_${riverDeck[i].Colour}">${riverDeck[i].Name}</span>, `;
+                        reportSpace.innerHTML += `<span class="report_name report_${riverDeck[i].Colour}">${riverDeck[i].Name}</span>, `;
                     }
                 }
                 reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -3878,7 +3880,7 @@
                     reportSpace.innerHTML += `Current Hand: `;
                     for (i = 0; i < handDeck.length; i++) {
                         if (handDeck[i].Type !== "hidden") {
-                            reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                            reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                         }
                     }
                     reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -4286,7 +4288,7 @@
                     reportSpace.innerHTML += `Current Hand: `;
                     for (i = 0; i < handDeck.length; i++) {
                         if (handDeck[i].Type !== "hidden") {
-                            reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                            reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                         }
                     }
                     reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -4358,7 +4360,7 @@
                     reportSpace.innerHTML += `Current Hand: `;
                     for (i = 0; i < handDeck.length; i++) {
                         if (handDeck[i].Type !== "hidden") {
-                            reportSpace.innerHTML += `<span class="report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
+                            reportSpace.innerHTML += `<span class="report_name report_${handDeck[i].Colour}">${handDeck[i].Name}</span>, `;
                         }
                     }
                     reportSpace.innerHTML = reportSpace.innerHTML.slice(0, -2);
@@ -5674,6 +5676,8 @@
                 randDialoge = Math.floor(Math.random() * (dialogueBroke.length));
                 dialogueSpace.innerText = dialogueBroke[randDialoge];
             }
+
+            document.getElementById("win_window").scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
         }
         
         //Hand Calculation
@@ -8926,6 +8930,9 @@
             min-width: 600px;
             box-sizing: border-box;
         }
+        .report_name {
+            white-space: nowrap;
+        }
         .report_Red {
             color: #ff0000;
         }
@@ -9308,8 +9315,10 @@
             <button class="holddeal_button" id="holddeal_button" type="button" onclick="holdDealStart();">Deal</button>
         </div>
         <div id="report_space" class="report"></div>
+        <div id="win_window">
         <div id="win_cards1" class="win_container" style="visibility: hidden;"><div id="win_space" class="river_space"></div></div>
         <div id="win_cards2" class="win_container" style="visibility: hidden;"><div id="tie_space" class="river_space"></div></div>
+        </div>
         <div id="option_space" class="option_space"><span>Options</span>
             <div id="render_container" class="render_container">
                 <label for="render_radio">Render Mode:</label>
