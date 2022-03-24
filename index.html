@@ -16,7 +16,7 @@
     <title>TotallyNormalPoker</title>
     <script language="JavaScript">
 
-        //Totally Normal Poker v1.1 - Callum West © 2022
+        //Totally Normal Poker v1.1a - Callum West © 2022
 
         //##-V1.1 Changelog-###
         //~Added error catch alert message for hand calculation
@@ -25,6 +25,11 @@
         //~Added Yaku House hand type
         //~Changed rank value and straight calculation validation for 'Unranked' cards
         //~Added more buttons for increasing and decreasing bets
+
+        //##-V1.1a Changelog-###
+        //~Switched names and text rendering of Justice and Strength tarot cards to reflect image rendering
+        //~Tweaked increase bet buttons
+        //~Tweaked issue with folding after making a bet
         
         //I went into this project with a very dumb idea and absolutely no clue how to write code for evaluating poker hands. I've come out with a very dumb game and code that can kinda evaluate poker hands most of the time. It's actually been very fun to write and test, even if it was a pain to debug at times due to my lack of annotation. Hope you enjoy!
 
@@ -74,7 +79,7 @@
         const unoColours = ["Red", "Blue", "Green", "Yellow"];
         const unoValues = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-        const tarotNames = ["The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The Hierophant", "The Lovers", "The Chariot", "Justice", "The Hermit", "Wheel of Fortune", "Strength", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World"];
+        const tarotNames = ["The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor", "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit", "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance", "The Devil", "The Tower", "The Star", "The Moon", "The Sun", "Judgement", "The World"];
 
         const tarotValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"];
 
@@ -911,6 +916,7 @@
         let betMoney = 0;
         let oppBetMoney = 0;
         let potMoney = 0;
+        let tempBet = 0;
 
         //Variables for player and opponent holding in 5 Card Draw hands
         
@@ -1620,7 +1626,7 @@
                         icon = "🐎";
                     }
                     if (value === "8") {
-                        icon = "⚖️";
+                        icon = "🦁";
                     }
                     if (value === "9") {
                         icon = "👴";
@@ -1629,7 +1635,7 @@
                         icon = "🎡";
                     }
                     if (value === "11") {
-                        icon = "🦁";
+                        icon = "⚖️";
                     }
                     if (value === "12") {
                         icon = "🤸";
@@ -3000,6 +3006,7 @@
 
         function drawPairs() {
             let card;
+            tempBet = 0;
             if (cardCounter === 0) {
                 card = mainDeck.shift();
                 handDeck.push(card);
@@ -3085,6 +3092,7 @@
         function drawRiver() {
             reportSpace.innerHTML = ``;
             let card;
+            tempBet = 0;
             if (cardCounter === 1) {
                 riverDeck = [];
                 card = mainDeck.shift();
@@ -3604,6 +3612,7 @@
         
         function drawFiveHand() {
             let card;
+            tempBet = 0;
             if (cardCounter === 0) {
                 card = mainDeck.shift();
                 handDeck.push(card);
@@ -4092,6 +4101,9 @@
         }
         
         function holdDealStart() {
+
+            tempBet = 0;
+
             if (oppHold1 === 1) {
                 let card = mainDeck.shift();
                 oppDeck[0] = card;
@@ -4472,6 +4484,11 @@
                     document.getElementById("betup3_button2").style.visibility = "hidden";
                     document.getElementById("allin_button2").style.visibility = "hidden";
 
+                    if (betMoney > oppBetMoney) {
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
+                    }
+
                     setTimeout(oppEvalPair, (tick * 4));
 
                 }
@@ -4482,6 +4499,9 @@
 
                         saveValues();
                         renderAll();
+
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
 
                         document.getElementById("betup_button").style.visibility = "hidden";
                         document.getElementById("betdown_button").style.visibility = "hidden";
@@ -4563,6 +4583,11 @@
                     document.getElementById("betup3_button2").style.visibility = "hidden";
                     document.getElementById("allin_button2").style.visibility = "hidden";
 
+                    if (betMoney > oppBetMoney) {
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
+                    }
+
                     setTimeout(oppEvalBoard, (tick * 4));
 
                 }
@@ -4573,6 +4598,9 @@
 
                         saveValues();
                         renderAll();
+
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
 
                         document.getElementById("betup_button").style.visibility = "hidden";
                         document.getElementById("betdown_button").style.visibility = "hidden";
@@ -4656,6 +4684,11 @@
                     document.getElementById("betup3_button2").style.visibility = "hidden";
                     document.getElementById("allin_button2").style.visibility = "hidden";
 
+                    if (betMoney > oppBetMoney) {
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
+                    }
+
                     setTimeout(oppEvalFive, (tick * 4));
 
                 }
@@ -4666,6 +4699,9 @@
 
                         saveValues();
                         renderAll();
+
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
 
                         document.getElementById("betup_button").style.visibility = "hidden";
                         document.getElementById("betdown_button").style.visibility = "hidden";
@@ -4759,6 +4795,11 @@
                     document.getElementById("betup3_button2").style.visibility = "hidden";
                     document.getElementById("allin_button2").style.visibility = "hidden";
 
+                    if (betMoney > oppBetMoney) {
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
+                    }
+
                     setTimeout(oppEvalFiveFinal, (tick * 4));
 
                 }
@@ -4769,6 +4810,9 @@
 
                         saveValues();
                         renderAll();
+
+                        tempBet = betMoney;
+                        console.log("tempBet: " + tempBet);
 
                         document.getElementById("betup_button").style.visibility = "hidden";
                         document.getElementById("betdown_button").style.visibility = "hidden";
@@ -4861,6 +4905,10 @@
                 playerMoney += -2;
                 betMoney += 2;
             }
+            else if (playerMoney > 0) {
+                playerMoney += -1;
+                betMoney += 1;
+            }
             if (stage === 1 || stage === 3) {
                 if (betMoney > oppBetMoney) {
                 document.getElementById("makebet_button").innerText = "Raise";
@@ -4884,6 +4932,10 @@
             if (playerMoney > 19) {
                 playerMoney += -20;
                 betMoney += 20;
+            }
+            else if (playerMoney > 0) {
+                betMoney += playerMoney;
+                playerMoney = 0;
             }
             if (stage === 1 || stage === 3) {
                 if (betMoney > oppBetMoney) {
@@ -5055,8 +5107,8 @@
             oppShowDeck = [];
             winDeck = [];
             tieDeck = [];
-            playerMoney += betMoney;
-            let reportPot = potMoney;
+            playerMoney += (betMoney - tempBet);
+            let reportPot = (potMoney + tempBet);
             betMoney = 0;
             oppBetMoney = 0;
             potMoney = 0;
