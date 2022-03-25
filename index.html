@@ -33,6 +33,7 @@
         //~Added scroll to winning hand after reveal
         //~Tweaked formatting for report space
         //~Removed Ace alt pair from UNO Wild card
+        //~Added chance of 'Uno and Pokémon Only' deck during wild phase
         
         //I went into this project with a very dumb idea and absolutely no clue how to write code for evaluating poker hands. I've come out with a very dumb game and code that can kinda evaluate poker hands most of the time. It's actually been very fun to write and test, even if it was a pain to debug at times due to my lack of annotation. Hope you enjoy!
 
@@ -1257,12 +1258,12 @@
                 if (rand === 10) {
                     rand = Math.floor((Math.random() * 5) + 1);
                     if (rand === 1) {
-                        for (i = 0; i < playing.length; i++) {
-                            let card = playing[i];
+                        for (i = 0; i < uno.length; i++) {
+                            let card = uno[i];
                             deck.push(card);
                         }
-                        for (i = 0; i < extra.length; i++) {
-                            let card = extra[i];
+                        for (i = 0; i < pokemon1.length; i++) {
+                            let card = pokemon1[i];
                             deck.push(card);
                         }
                         if (testLog === true) {
